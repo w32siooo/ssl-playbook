@@ -1,6 +1,14 @@
 ---
-- hosts: all
+- hosts: localhost
+  become: true
   tasks:
-    - name: Print message
-      debug:
-        msg: Hello Ansible World
+  - name: Download and install amazon-ssm-agent rpm package
+    ansible.builtin.dnf:
+      # The amazon-ssm-agent RPM is currently unsigned:
+      # https://github.com/aws/amazon-ssm-agent/issues/235
+      disable_gpg_check: yes
+      name: "https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm"
+  - name: Enable Amazon SSM Agent service
+    ansible.builtin.service:
+      enabled: yes
+      name: amazon-ssm-agent
